@@ -5,6 +5,23 @@ var mongoose = require("mongoose");
 var cors = require("cors");
 var fs = require("fs");
 
+/*
+A helper function for removing folders, needed a recursive way to remove any and all subdirectories/files when removing a user
+*/
+var deleteFolderRecursive = function (path) {
+    if (fs.existsSync(path)) {
+        fs.readdirSync(path).forEach(function (file, index) {
+            var curPath = path + "/" + file;
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                deleteFolderRecursive(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
+};
+
 mongoose.connect("mongodb://localhost/stashsphere");
 
 var User = mongoose.model("User", mongoose.Schema({
@@ -145,6 +162,16 @@ formatting:
 }
 */
 app.delete("/user/delete", function (req, res) {
+    User.findOne(
+        { _username: req.body._username },
+        function (err, to_del) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            }
+            deleteFolderRecursive(to_del.path_root);
+            deleteFolderRecursive(to_del.path_shared);
+        });
     User.findOneAndRemove(
         { _username: req.body._username, password: req.body.password },
         function (err) {
@@ -219,7 +246,61 @@ app.put("/user/add_friend", function (req, res) {
 
 /*node actions*/
 
+/*
+uploading a file
+*/
+app.post("/node/file_up", function (req, res) {
+    //
+});
 
+/*
+creating a folder
+*/
+app.post("/node/new_folder", function (req, res) {
+    //
+});
+
+/*
+removing a file
+*/
+app.delete("/node/rm", function (req, res) {
+    //
+});
+
+/*
+removing a folder
+*/
+app.delete("/node/rmdir", function (req, res) {
+    //
+});
+
+/*
+updating a file
+*/
+app.put("/node/update", function (req, res) {
+    //
+});
+
+/*
+starring a file
+*/
+app.put("/node/star", function (req, res) {
+    //
+});
+
+/*
+getting a file
+*/
+app.get("/node/file", function (req, res) {
+    //
+});
+
+/*
+getting a folder
+*/
+app.get("/node/folder", function (req, res) {
+    //
+});
 
 /*start the server*/
 app.listen(3000, "localhost", function () {
