@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { UsersService } from '../users.service'
+// import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-sign-up-form',
@@ -8,15 +10,45 @@ import { Component, OnInit } from '@angular/core';
 export class SignUpFormComponent implements OnInit {
 
   newUser = {
-    username: "",
+    _username: "",
     password: "",
-    // etc...
+    fName: "",
+    lName: "",
+  }
+
+  passwordCheck = ""
+  passMatch: boolean = true;
+
+  validatePassword() {
+    this.passMatch = (this.newUser.password == this.passwordCheck) ? true : false;
+  }
+
+  createAccount(user) {
+    // first validate passwords
+
+
+    console.log(user);
+    // call api
   }
 
 
-  constructor() { }
+  constructor(private userService: UsersService) { }
 
   ngOnInit() {
+    // this.userForm = new FormGroup({
+    //   'username': new FormControl(this.newUser._username, [
+    //     Validators.required,
+    //     Validators.minLength(4),
+    //   ]),
+    //   'password': new FormControl(this.newUser.password, [
+    //     Validators.required,
+    //     Validators.minLength(4),
+    //   ]),
+    //   'fName': new FormControl(this.newUser.fName, Validators.required),
+    //   'lName': new FormControl(this.newUser.lName, Validators.required)
+    // });
   }
+
+  // get username() { return this.userForm.get('username'); }
 
 }

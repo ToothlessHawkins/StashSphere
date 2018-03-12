@@ -4,11 +4,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component'
 
 const routes: Routes = [
-  {
-    path: 'front',
-    loadChildren: './front-page/front-page-routing.module#FrontPageRoutingModule'
-  }
-
+  // {
+  //   path: 'front',
+  //   loadChildren: './front-page/front-page-routing.module#FrontPageRoutingModule'
+  // }
 ];
 
 @NgModule({

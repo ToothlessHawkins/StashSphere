@@ -1,14 +1,74 @@
 <p>Sign Up</p>
-<div>
-  <label>username:
-    <input [(ngModel)]="newUser.username" placeholder="username">
-  </label>
-</div>
-<div>
-  <label>password:
-    <input type="password" [(ngModel)]="newUser.password" placeholder="password">
-  </label>
-</div>
-<div>
-  <input type="submit" value="Sign Up" (click)="createAccount(newUser)">
-</div>
+<form #f="ngForm" novalidate>
+  <div>
+    <label for="username">Username: </label>
+    <input id="username" name="username" class="form-control" required minlength="4" [(ngModel)]="newUser.username" #username="ngModel"
+      placeholder="Username">
+    <span *ngIf="username.invalid && (username.dirty || username.touched)" class="alert alert-danger">
+      <span *ngIf="username.errors.required">
+        Name is required.
+      </span>
+      <span *ngIf="username.errors.minlength">
+        Name must be at least 4 characters long.
+      </span>
+    </span>
+  </div>
+
+  <div>
+    <label for="password">Password: </label>
+    <input type="password" id="password" name="password" class="form-control" required minlength="4" #password="ngModel" [(ngModel)]="newUser.password"
+      placeholder="Password">
+    <span *ngIf="password.invalid && (password.dirty || password.touched)" class="alert alert-danger">
+      <span *ngIf="password.errors.required">
+        Password is required.
+      </span>
+      <span *ngIf="password.errors.minlength">
+        Password must be at least 4 characters long.
+      </span>
+    </span>
+  </div>
+
+  <div>
+    <label for="Confirm">Confirm Password: </label>
+    <input type="password" id="Confirm" name="Confirm" class="form-control" required minlength="4" #Confirm="ngModel" [(ngModel)]="passwordCheck"
+      placeholder="Confirm" (blur)="validatePassword()">
+    <span *ngIf="!passMatch && (Confirm.dirty || Confirm.touched)" class="alert alert-danger">
+      <span>Passwords do not match.</span>
+    </span>
+    <span *ngIf="Confirm.invalid && (Confirm.dirty || Confirm.touched)" class="alert alert-danger">
+      <span *ngIf="Confirm.errors.required">
+        Confirm is required.
+      </span>
+      <span *ngIf="Confirm.errors.minlength">
+        Confirm must be at least 4 characters long.
+      </span>
+    </span>
+  </div>
+
+  <div>
+    <label for="fName">First Name: </label>
+    <input type="text" id="fName" name="fName" class="form-control" required #fName="ngModel" [(ngModel)]="newUser.fName" placeholder="First Name">
+    <span *ngIf="fName.invalid && (fName.dirty || fName.touched)" class="alert alert-danger">
+      <span *ngIf="fName.errors.required">
+        First name is required.
+      </span>
+    </span>
+  </div>
+
+  <div>
+    <label for="lName">Last Name: </label>
+    <input type="text" id="lName" name="lName" class="form-control" required #lName="ngModel" [(ngModel)]="newUser.lName" placeholder="Last Name">
+    <span *ngIf="lName.invalid && (lName.dirty || lName.touched)" class="alert alert-danger">
+      <span *ngIf="lName.errors.required">
+        Last name is required.
+      </span>
+    </span>
+  </div>
+
+  <div *ngIf="lName.valid && fName.valid && Confirm.valid && password.valid && username.valid;else nosubmit">
+    <input type="submit" value="Sign Up" (click)="createAccount(newUser)">
+  </div>
+  <ng-template #nosubmit>
+    <div>Please complete all fields.</div>
+  </ng-template>
+</form>
