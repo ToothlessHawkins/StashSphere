@@ -1,0 +1,14 @@
+<p>Sign Up</p>
+<div>
+  <label>username:
+    <input [(ngModel)]="newUser.username" placeholder="username">
+  </label>
+</div>
+<div>
+  <label>password:
+    <input type="password" [(ngModel)]="newUser.password" placeholder="password">
+  </label>
+</div>
+<div>
+  <input type="submit" value="Sign Up" (click)="createAccount(newUser)">
+</div>

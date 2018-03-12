@@ -1,17 +1,14 @@
 import { NgModule } from '@angular/core';
+import { FrontPageRoutingModule } from './front-page/front-page-routing.module';
 import { RouterModule, Routes } from '@angular/router';
-import { FrontPageComponent } from './front-page/front-page.component'
+import { AppComponent } from './app.component'
 
 const routes: Routes = [
-  // {
-  //   path: 'front',
-  //   component: FrontPageComponent,
-  // },
   {
-    path: '',
-    redirectTo: '/front',
-    pathMatch: 'full',
-  },
+    path: 'front',
+    loadChildren: './front-page/front-page-routing.module#FrontPageRoutingModule'
+  }
+
 ];
 
 @NgModule({
