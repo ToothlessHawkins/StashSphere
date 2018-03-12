@@ -1,3 +1,19 @@
-<p>
-  home-dash works!
-</p>
+<div class="container col-sm-9 well-sm">
+  <h4>Reacent Uploads</h4>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Modified</th>
+        <th>Memebers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let file of files">
+        <td>{{ file.name }}</td>
+        <td>{{ file.modified }}</td>
+        <td>{{ file.members }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
