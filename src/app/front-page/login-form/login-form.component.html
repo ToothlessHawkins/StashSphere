@@ -1,0 +1,14 @@
+<p>Login</p>
+<div>
+  <label>username:
+    <input [(ngModel)]="credentials.username" placeholder="username">
+  </label>
+</div>
+<div>
+  <label>password:
+    <input type="password" [(ngModel)]="credentials.password" placeholder="password">
+  </label>
+</div>
+<div>
+  <input type="submit" value="Login" (click)="attemptLogin(credentials)">
+</div>
