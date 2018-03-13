@@ -25,7 +25,7 @@ export class LoginFormComponent implements OnInit {
         if (result) {
           /* REROUTE AFTER SUCCESSFUL LOGIN */
           //console.log("Successful login!");
-          this.router.navigateByUrl('#');
+          this.router.navigateByUrl('/dash');
         } else {
           this.failed = true;
           this.router.navigateByUrl('/login');
