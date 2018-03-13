@@ -45,7 +45,7 @@
           </button>
           <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
             <li role="presentation"><a role="menuitem" tabindex="-1"><h4>Full Name</h4></a></li>
-            <li (click)="goToAccount()" role="presentation"><a role="menuitem" tabindex="-1">Settings</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1">Settings</a></li>
             <li role="presentation" class="divider"></li>
             <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Log Out</a></li>
           </ul>
@@ -54,18 +54,20 @@
     </div>
 
     <!-- needs to be displayed by dynamicly with user (click) -->
-    <!-- router-outlet -->
-    <app-account-dash *ngIf="v"></app-account-dash>
-    <app-home-dash *ngIf="!v"></app-home-dash>
+    <!--
+  <app-account-dash></app-account-dash>
+  <app-home-dash></app-home-dash>
+    -->
+    <router-outlet></router-outlet>
 
 
     <!-- this needs its own component maybe? -->
     <!--
-         <div class="col-sm-3 hidden-sm">
-           <div class="well">
-             <h4>right side info</h4>
-           </div>
+       <div class="col-sm-3 hidden-sm">
+         <div class="well">
+           <h4>right side info</h4>
          </div>
-    -->
+       </div>
+  -->
   </div>
 </div>
