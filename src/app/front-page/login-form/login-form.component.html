@@ -1,4 +1,5 @@
 <p>Login</p>
+<span *ngIf="failed">Incorrect Login Credentials!</span>
 <div>
   <label>Username:
     <input [(ngModel)]="credentials._username" placeholder="Username">

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UsersService } from '../users.service'
+import { Router } from '@angular/router'
 // import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
@@ -9,6 +10,7 @@ import { UsersService } from '../users.service'
 })
 export class SignUpFormComponent implements OnInit {
 
+  failed: boolean = false;
   newUser = {
     _username: "",
     password: "",
@@ -24,31 +26,26 @@ export class SignUpFormComponent implements OnInit {
   }
 
   createAccount(user) {
-    // first validate passwords
-
-
-    console.log(user);
-    // call api
+    this.userService.attemptCreateUser(user)
+      .subscribe(result => {
+        //console.log(result);
+        if (Object.keys(result).length > 2) {
+          /* REROUTE TO LOGIN AFTER SUCCESSFUL CREATION */
+          this.router.navigateByUrl('/login');
+        } else {
+          this.failed = true;
+          this.router.navigateByUrl('/signup');
+        }
+      });
   }
 
 
-  constructor(private userService: UsersService) { }
+  constructor(
+    private userService: UsersService,
+    private router: Router,
+  ) { }
 
   ngOnInit() {
-    // this.userForm = new FormGroup({
-    //   'username': new FormControl(this.newUser._username, [
-    //     Validators.required,
-    //     Validators.minLength(4),
-    //   ]),
-    //   'password': new FormControl(this.newUser.password, [
-    //     Validators.required,
-    //     Validators.minLength(4),
-    //   ]),
-    //   'fName': new FormControl(this.newUser.fName, Validators.required),
-    //   'lName': new FormControl(this.newUser.lName, Validators.required)
-    // });
   }
-
-  // get username() { return this.userForm.get('username'); }
 
 }

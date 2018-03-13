@@ -1,8 +1,9 @@
 <p>Sign Up</p>
+<span *ngIf="failed">Account Creation Failed! Username taken.</span>
 <form #f="ngForm" novalidate>
   <div>
     <label for="username">Username: </label>
-    <input id="username" name="username" class="form-control" required minlength="4" [(ngModel)]="newUser.username" #username="ngModel"
+    <input id="username" name="username" class="form-control" required minlength="4" [(ngModel)]="newUser._username" #username="ngModel"
       placeholder="Username">
     <span *ngIf="username.invalid && (username.dirty || username.touched)" class="alert alert-danger">
       <span *ngIf="username.errors.required">
