@@ -9,7 +9,17 @@ import { FrontPageComponent } from './front-page/front-page.component'
 import { LoginFormComponent } from './front-page/login-form/login-form.component'
 import { AppPage } from '../../e2e/app.po';
 
+import { DashboardModule } from './dashboard/dashboard.module'
+import { DashboardComponent } from './dashboard/dashboard.component'
+
 const routes: Routes = [
+
+  {
+
+    path: 'dash',
+    component: DashboardComponent,
+    loadChildren: () => DashboardModule
+  },
   {
     path: 'front',
     component: FrontPageComponent,
