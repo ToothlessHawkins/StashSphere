@@ -4,6 +4,20 @@ var bodyparse = require("body-parser");
 var mongoose = require("mongoose");
 var cors = require("cors");
 var fs = require("fs");
+var multer = require("multer");
+
+//var upload = multer({ storage: multer.memoryStorage() });
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./temp/");
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+var upload = multer({ storage: storage });
 
 /*
 A helper function for removing folders, needed a recursive way to remove any and all subdirectories/files when removing a user
@@ -39,7 +53,7 @@ var Node = mongoose.model("Node", mongoose.Schema({
     file_name: String,
     uploader: String,
     date_up: Date,
-    children: [{ type: Number }],
+    children: [{ type: String }],
     starred: Boolean,
     deleted: Boolean,
     isFolder: Boolean
@@ -247,17 +261,97 @@ app.put("/user/add_friend", function (req, res) {
 /*node actions*/
 
 /*
-uploading a file
+uploading a file, some information must be provided along with the file itself.
+formatting:
+{
+    u_path:<path (from user's root) that ends with the target folder>,
+    owner:<the _username of the uploader>,
+    file:<the file to store>
+}
 */
-app.post("/node/file_up", function (req, res) {
-    //
+app.post("/node/file_up", upload.single("file"), function (req, res) {
+    console.log("headers: " + req.headers);
+    console.log("content-type: " + req.headers["content-type"]);
+    console.log("file: " + req.file);
+    //console.log("The request body: " + req.body);
+    console.log("path: " + req.body.u_path);
+    console.log("owner: " + req.body.owner);
+    User.findOne({ _username: req.body.owner }, function (err, user) {
+        if (err) { res.send(err) }
+        if (user) {
+            var from = "./temp/" + req.file.originalname;
+            var to = user.path_root + "/" + req.body.u_path + "/" + req.file.originalname;
+            fs.copyFileSync(from, to);
+            if (fs.existsSync(to)) {
+                //the file exists in the new directory, clean up temp
+                fs.unlinkSync(from);
+                //add a reference to the new file in the database
+                Node.create({
+                    file_name: to,
+                    uploader: req.body.owner,
+                    date_up: Date.now(),
+                    children: [],
+                    starred: false,
+                    deleted: false,
+                    isFolder: false
+                });
+                res.json({ "created": true, "location": to });
+            } else {
+                res.json({
+                    "created": false,
+                    "message": "File does not exist in desired directory."
+                });
+            }
+        }
+    });
 });
 
 /*
-creating a folder
+creating a folder. Provide the _username, "current path" and the name of the folder to be created.
+formatting:
+{
+    "_username":<_username>,
+    "cur_path":<user's current path (from their root folder)>,
+    "name":<the name of the folder to be created
+}
 */
 app.post("/node/new_folder", function (req, res) {
-    //
+    console.log("received request to create a folder:\n" + req.body.name + "\nin the existing folder:\n" + req.body.cur_path + "\nfor user: " + req.body._username);
+    User.findOne({ _username: req.body._username }, function (err, user) {
+        if (err) {
+            res.send(err);
+        } else {
+            var dest = user.path_root + "/" + req.body.cur_path + req.body.name;
+            fs.mkdirSync(dest);
+            if (fs.existsSync(dest)) {
+                var f_doc = new Node();
+                f_doc.file_name = dest;
+                f_doc.uploader = req.body._username;
+                f_doc.date_up = Date.now();
+                f_doc.children = [];
+                f_doc.starred = false;
+                f_doc.deleted = false;
+                f_doc.isFolder = true;
+                f_doc.save(function (err, doc) {
+                    Node.findOneAndUpdate(
+                        { file_name: user.path_root + "/" + req.body.cur_path.slice(0, -1) },
+                        { $addToSet: { children: doc._id } },
+                        function (err) { if (err) { res.send(err); } }
+                    );
+                    res.json(
+                        {
+                            "created": true,
+                            "location": dest
+                        });
+                });
+            } else {
+                res.json({
+                    "created": false,
+                    "message": "after trying to create the directory, it did not exist in the desired path"
+                }); //end bad response
+            } //end if-else-if: fs.existsSync()
+        } //end if-else-if err
+    }); //end findone
 });
 
 /*
