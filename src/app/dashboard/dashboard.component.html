@@ -1,0 +1,73 @@
+
+
+<nav class="navbar navbar-inverse visible-xs">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">logo</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li *ngFor="let link of links">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row content">
+    <div class="col-sm-3 sidenav hidden-xs well fullh">
+      <h2><a href="#"><img src="#" alt="logo" /></a></h2>
+      <ul class="nav nav-pills nav-stacked">
+        <li *ngFor="let link of links">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </li>
+      </ul><br>
+    </div>
+
+
+    <div class="col-sm-9 well-sm">
+      <!-- title need to be dynamic -->
+      <h2 class="top-content col-sm-6">Dashboard</h2>
+
+      <div class="user-dropdown top-content col-sm-3">
+        <input class="form-control" id="inputdefault" type="text" name="search" placeholder="Search..">
+
+        <div class="dropdown">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            User<span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+            <li role="presentation"><a role="menuitem" tabindex="-1"><h4>Full Name</h4></a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1">Settings</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- needs to be displayed by dynamicly with user (click) -->
+    <!--
+  <app-account-dash></app-account-dash>
+  <app-home-dash></app-home-dash>
+    -->
+    <router-outlet></router-outlet>
+
+
+    <!-- this needs its own component maybe? -->
+    <!--
+       <div class="col-sm-3 hidden-sm">
+         <div class="well">
+           <h4>right side info</h4>
+         </div>
+       </div>
+  -->
+  </div>
+</div>

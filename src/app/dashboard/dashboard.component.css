@@ -1,0 +1,14 @@
+
+/* side nav 100% height */
+.fullh {
+  height: 100vh;
+}
+
+/* heading content */
+.top-content {
+  display: inline-block;
+}
+
+.user-dropdown {
+  float: right;
+}

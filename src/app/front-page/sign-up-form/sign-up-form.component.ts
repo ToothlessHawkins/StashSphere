@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { UsersService } from '../users.service'
+import { Router } from '@angular/router'
+// import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-sign-up-form',
@@ -7,14 +10,40 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SignUpFormComponent implements OnInit {
 
+  failed: boolean = false;
   newUser = {
-    username: "",
+    _username: "",
     password: "",
-    // etc...
+    fName: "",
+    lName: "",
+  }
+
+  passwordCheck = ""
+  passMatch: boolean = true;
+
+  validatePassword() {
+    this.passMatch = (this.newUser.password == this.passwordCheck) ? true : false;
+  }
+
+  createAccount(user) {
+    this.userService.attemptCreateUser(user)
+      .subscribe(result => {
+        //console.log(result);
+        if (Object.keys(result).length > 2) {
+          /* REROUTE TO LOGIN AFTER SUCCESSFUL CREATION */
+          this.router.navigateByUrl('/login');
+        } else {
+          this.failed = true;
+          this.router.navigateByUrl('/signup');
+        }
+      });
   }
 
 
-  constructor() { }
+  constructor(
+    private userService: UsersService,
+    private router: Router,
+  ) { }
 
   ngOnInit() {
   }
