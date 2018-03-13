@@ -22,7 +22,7 @@ import { SharingDashComponent } from './sharing-dash/sharing-dash.component';
     DeleteDashComponent,
     SharingDashComponent,
     DashboardComponent
-   ],
+  ],
   declarations: [
     HomeDashComponent,
     AccountDashComponent,
