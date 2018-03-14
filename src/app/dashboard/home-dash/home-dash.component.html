@@ -1,19 +1,40 @@
-<div class="container col-sm-9 well-sm">
-  <h4>Reacent Uploads</h4>
+<div class="container col-sm-10 well-sm">
   <table class="table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Modified</th>
-        <th>Memebers</th>
+        <th class="col-sm-9"><h5>Favorites</h5></th>
+        <!--<th>Modified</th>
+        <th>Memebers</th>-->
+        <th><a (click)="toggleHome(0)" class="btn btn-outline-info btn-block" role="button">{{ btn[0] }}</a></th>
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td class="show-fav-tbl">file name</td>
+      </tr>
+      <tr *ngFor="let file of fave_files">
+        <td class="show-fav-tbl">{{ file.name }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="col-sm-9"><h5>Recent</h5></th>
+        <th><a (click)="toggleHome(1)" class="btn btn-outline-info btn-block" role="button">{{ btn[1] }}</a></th>
+        <!--<th>Modified</th>
+  <th>Memebers</th>-->
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="show-recent-tbl">file name</td>
+      </tr>
       <tr *ngFor="let file of files">
-        <td>{{ file.name }}</td>
-        <td>{{ file.modified }}</td>
-        <td>{{ file.members }}</td>
+        <td class="show-tbl">{{ file.name }}</td>
       </tr>
     </tbody>
   </table>
 </div>
+
+
