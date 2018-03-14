@@ -451,7 +451,11 @@ app.post("/node/file", function (req, res) {
                         res.send(err);
                     } else if (data) {
                         console.log("successful read, sending response...");
-                        res.json(data);
+                        res.json(
+                            {
+                                "success": true,
+                                "data": data
+                            });
                     } else {
                         res.json(
                             {
@@ -502,6 +506,7 @@ app.post("/node/folder", function (req, res) {
                                 if (docs) {
                                     res.json(
                                         {
+                                            "success": true,
                                             "new_path": new_path,
                                             "files": docs
                                         }
