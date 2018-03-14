@@ -22,11 +22,11 @@ export const FILE_LINKS: Links[] = [
   {
     route: '/dash/files/sharing',
     name: 'sharing',
-    i:1
+    i:2
   },
   {
     route: '/dash/files/delete',
     name: 'deleted files',
-    i:1
+    i:3
   }
 ]

@@ -25,7 +25,7 @@
     <div class="col-sm-2 sidenav hidden-xs well fullh">
       <h2><a (click)="linkMethod(0)" routerLink='/dash' ><img src="#" alt="logo"/></a></h2>
       <ul class="nav nav-pills nav-stacked">
-        <li *ngFor="let l of link" (click)="linkMethod(l.i)">
+        <li *ngFor="let l of link" (click)="linkMethod(l.i) ">
           <a routerLink="{{ l.route }}" >{{ l.name }}</a>
         </li>
       </ul><br>
@@ -34,7 +34,7 @@
 
     <div class="col-sm-10 well-sm">
       <!-- title need to be dynamic -->
-      <h2 class="top-content col-sm-6">Dashboard</h2>
+      <h2 class="top-content col-sm-6">{{ title }}</h2>
 
       <div class="user-dropdown top-content col-sm-4">
         <input class="form-control" id="inputdefault" type="text" name="search" placeholder="Search..">
@@ -45,7 +45,7 @@
           </button>
           <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
             <li role="presentation"><a role="menuitem" tabindex="-1"><h4>Full Name</h4></a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" (click)="linkMethod(0)" routerLink="/dash/account">Settings</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" (click)="linkMethod(4)" routerLink="/dash/account">Settings</a></li>
             <li role="presentation" class="divider"></li>
             <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Log Out</a></li>
           </ul>

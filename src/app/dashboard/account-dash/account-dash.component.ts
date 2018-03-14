@@ -6,7 +6,6 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./account-dash.component.css']
 })
 export class AccountDashComponent implements OnInit {
-
   constructor() { }
 
   ngOnInit() {

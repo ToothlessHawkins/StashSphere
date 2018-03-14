@@ -10,6 +10,8 @@ import { HOME_LINKS, FILE_LINKS } from './temp-links';
 })
 export class DashboardComponent implements OnInit {
   links = [HOME_LINKS, FILE_LINKS];
+  titles = ['Dashboard', 'Stash Sphere', 'Sharing Center', 'Deleted Files', 'Account Settings'];
+  title = this.titles[0];
   link = this.links[0];
   constructor(
     private router: Router,
@@ -19,6 +21,11 @@ export class DashboardComponent implements OnInit {
   }
 
   linkMethod(x) {
-    this.link = this.links[x]
+    if (x === 0 || x === 4) {
+      this.link = this.links[0];
+    } else {
+      this.link = this.links[1]
+    }
+    this.title = this.titles[x]
   }
 }
