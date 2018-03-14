@@ -13,6 +13,9 @@ export class DashboardComponent implements OnInit {
   titles = ['Dashboard', 'Stash Sphere', 'Sharing Center', 'Deleted Files', 'Account Settings'];
   title = this.titles[0];
   link = this.links[0];
+
+  raw_data = sessionStorage.getItem('user');
+  data = JSON.parse(this.raw_data);
   constructor(
     private router: Router,
   ) { }
