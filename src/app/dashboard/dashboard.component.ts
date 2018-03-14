@@ -18,10 +18,6 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
-    if (sessionStorage.getItem('user') && sessionStorage.getItem('user') != 'false') {
-      let data = sessionStorage.getItem('user');
-    } else { this.router.navigateByUrl('/front'); }
   }
 
   clearSes() {
