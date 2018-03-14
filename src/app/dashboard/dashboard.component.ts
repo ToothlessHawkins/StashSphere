@@ -18,8 +18,15 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+
+    if (sessionStorage.getItem('user') && sessionStorage.getItem('user') != 'false') {
+      let data = sessionStorage.getItem('user');
+    } else { this.router.navigateByUrl('/front'); }
   }
 
+  clearSes() {
+    sessionStorage.setItem('user', 'false');
+  }
   linkMethod(x) {
     if (x === 0 || x === 4) {
       this.link = this.links[0];

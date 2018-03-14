@@ -33,7 +33,6 @@
 
 
     <div class="col-sm-10 well-sm">
-      <!-- title need to be dynamic -->
       <h2 class="top-content col-sm-6">{{ title }}</h2>
 
       <div class="user-dropdown top-content col-sm-4">
@@ -47,7 +46,7 @@
             <li role="presentation"><a role="menuitem" tabindex="-1"><h4>Full Name</h4></a></li>
             <li role="presentation"><a role="menuitem" tabindex="-1" (click)="linkMethod(4)" routerLink="/dash/account">Settings</a></li>
             <li role="presentation" class="divider"></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Log Out</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#" (click)="clearSes()">Log Out</a></li>
           </ul>
         </div>
       </div>
