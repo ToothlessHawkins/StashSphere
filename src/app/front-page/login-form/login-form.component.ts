@@ -33,8 +33,8 @@ export class LoginFormComponent implements OnInit {
           //console.log(r)
           sessionStorage.setItem('user', r);
           let data = sessionStorage.getItem('user');
-          data = JSON.parse(data)
-          console.log(data._username);
+          data = JSON.parse(data);
+
           this.router.navigateByUrl('/dash');
         } else {
           this.failed = true;
