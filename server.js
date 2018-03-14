@@ -5,8 +5,11 @@ var mongoose = require("mongoose");
 var cors = require("cors");
 var fs = require("fs");
 var multer = require("multer");
+var jwt = require("jwt-simple");
+var key_gen = require("randomstring");
 
-//var upload = multer({ storage: multer.memoryStorage() });
+//var secret = key_gen.generate(16);
+var secret = "deadb33f";
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -46,7 +49,8 @@ var User = mongoose.model("User", mongoose.Schema({
     lName: String,
     path_root: String,
     associates: [{ type: String }],
-    path_shared: String
+    path_shared: String,
+    token: String
 }));
 
 var Node = mongoose.model("Node", mongoose.Schema({
@@ -82,15 +86,23 @@ app.post("/user/login", function (req, res) {
                 res.send(err);
             }
             if (user) {
-                res.json({
+                var details = {
                     _username: user._username,
                     date_created: user.date_created,
                     fName: user.fName,
                     lName: user.lName,
-                    associates: user.associates,
-                    path_root: user.path_root,
-                    path_shared: user.path_shared
-                });
+                    associates: user.associates
+                };
+                var pack = key_gen.generate(16);
+                User.findByIdAndUpdate(user._id, { "token": pack },
+                    function (err, resp) {
+                        if (err) {
+                            res.send(err);
+                        }
+                        console.log(resp);
+                    });
+                var token = jwt.encode(pack, secret);
+                res.json({ "token": token, "details": details });
             } else {
                 res.send(false);
             }
@@ -141,6 +153,16 @@ app.post("/user/create", function (req, res) {
                 if (fs.existsSync(dir)) {
                     console.log("successfully created: " + dir + "\n");
                     new_user.path_root = dir;
+                    root_folder = new Node();
+                    root_folder.file_name = new_user.path_root;
+                    root_folder.uploader = new_user._username;
+                    root_folder.date_up = Date.now();
+                    root_folder.children = [];
+                    root_folder.starred = false;
+                    root_folder.deleted = false;
+                    root_folder.isFolder = true;
+                    root_folder.save();
+                    console.log("successfully created the root folder in the database.");
                 }
                 //create user's shared folder
                 var shared_dir = __dirname + "/shared/" + new_user._username;
@@ -155,6 +177,16 @@ app.post("/user/create", function (req, res) {
                 if (fs.existsSync(shared_dir)) {
                     console.log("successfully created: " + shared_dir + "\n");
                     new_user.path_shared = shared_dir;
+                    shared_folder = new Node();
+                    shared_folder.file_name = new_user.path_shared;
+                    shared_folder.uploader = new_user._username;
+                    shared_folder.date_up = Date.now();
+                    shared_folder.children = [];
+                    shared_folder.starred = false;
+                    shared_folder.deleted = false;
+                    shared_folder.isFolder = true;
+                    shared_folder.save();
+                    console.log("successfully created the shared folder in the database.");
                 }
                 new_user.associates = [];
                 User.create(new_user, function (err, created_user) {
@@ -171,13 +203,12 @@ app.post("/user/create", function (req, res) {
 in order to delete a user, pass the unique username and password in the body of the request. The username is for identification purposes, the password is for verification.
 formatting:
 {
-    "_username":<name>, 
-    "password":<password>
+    "token":<the login-token>
 }
 */
 app.delete("/user/delete", function (req, res) {
     User.findOne(
-        { _username: req.body._username },
+        { token: jwt.decode(req.body.token, secret) },
         function (err, to_del) {
             if (err) {
                 console.log(err);
@@ -187,7 +218,7 @@ app.delete("/user/delete", function (req, res) {
             deleteFolderRecursive(to_del.path_shared);
         });
     User.findOneAndRemove(
-        { _username: req.body._username, password: req.body.password },
+        { token: jwt.decode(req.body.token, secret) },
         function (err) {
             if (err) {
                 res.send(err);
@@ -371,14 +402,14 @@ app.delete("/node/rmdir", function (req, res) {
 });
 
 /*
-updating a file
+updating a file. Provide the user details, and the current path, and the new path. Note that simply changing the name at the end of the path will change the file name
 */
 app.put("/node/update", function (req, res) {
     //
 });
 
 /*
-starring a file
+starring a file.
 */
 app.put("/node/star", function (req, res) {
     //
