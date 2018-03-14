@@ -261,7 +261,7 @@ app.put("/user/add_friend", function (req, res) {
 /*node actions*/
 
 /*
-uploading a file, some information must be provided along with the file itself.
+uploading a file, some information must be provided along with the file itself. Note that the current path should end with a "/".
 formatting:
 {
     u_path:<path (from user's root) that ends with the target folder>,
@@ -276,11 +276,13 @@ app.post("/node/file_up", upload.single("file"), function (req, res) {
     //console.log("The request body: " + req.body);
     console.log("path: " + req.body.u_path);
     console.log("owner: " + req.body.owner);
+    console.log("original name: " + req.file.originalname);
     User.findOne({ _username: req.body.owner }, function (err, user) {
-        if (err) { res.send(err) }
+        if (err) { res.send(err); }
         if (user) {
             var from = "./temp/" + req.file.originalname;
-            var to = user.path_root + "/" + req.body.u_path + "/" + req.file.originalname;
+            var to = user.path_root + "/" + req.body.u_path + req.file.originalname;
+            console.log("to: " + to);
             fs.copyFileSync(from, to);
             if (fs.existsSync(to)) {
                 //the file exists in the new directory, clean up temp
@@ -312,7 +314,7 @@ formatting:
 {
     "_username":<_username>,
     "cur_path":<user's current path (from their root folder)>,
-    "name":<the name of the folder to be created
+    "name":<the name of the folder to be created>
 }
 */
 app.post("/node/new_folder", function (req, res) {
@@ -383,17 +385,110 @@ app.put("/node/star", function (req, res) {
 });
 
 /*
-getting a file
+getting a file. Must provide username/password to verify that they can view the files, the name of the file they want (will return a file object), and the current path.
+Formatting:
+{
+    _username:<the user's _username>,
+    password:<the user's password>,
+    file_name:<the name of the file the user clicked on>,
+    cur_path:<the path from root to the directory the user is in currently>
+}
 */
-app.get("/node/file", function (req, res) {
-    //
+app.post("/node/file", function (req, res) {
+    User.findOne(
+        { _username: req.body._username, password: req.body.password },
+        function (err, user) {
+            if (err) {
+                res.send(err);
+            } else if (user) {
+                //matched a user
+                var filePath = user.path_root + "/" + req.body.cur_path + req.body.file_name;
+                console.log("reading file at: " + filePath);
+                fs.readFile(filePath, function (err, data) {
+                    if (err) {
+                        res.send(err);
+                    } else if (data) {
+                        console.log("successful read, sending response...");
+                        res.json(data);
+                    } else {
+                        res.json(
+                            {
+                                "success": false,
+                                "message": "There was a problem reading the data"
+                            }
+                        );
+                    }
+                });
+            } else {
+                res.json(
+                    {
+                        "success": false,
+                        "message": "Invalid username and password combination"
+                    });
+            }
+        });
 });
 
 /*
-getting a folder
+getting a folder. must provide the username/password for verification, the name of the folder they want to view, and the current path, from root.
+formatting:
+{
+    _username:<the user's _username>,
+    password:<the user's password>,
+    folder_name:<the folder the user is clicking on>,
+    cur_path:<the path from root to the directory the user is currently in>
+}
 */
-app.get("/node/folder", function (req, res) {
-    //
+app.post("/node/folder", function (req, res) {
+    User.findOne(
+        { _username: req.body._username, password: req.body.password },
+        function (err, user) {
+            if (err) {
+                res.send(err);
+            } else if (user) {
+                //found a matching user
+                var name = user.path_root + "/" + req.body.cur_path + req.body.folder_name;
+                console.log(name);
+                Node.findOne({ file_name: name }, function (err, folder) {
+                    if (err) {
+                        res.send(err);
+                    } else if (folder) {
+                        //found the folder
+                        new_path = folder.file_name;
+                        Node.find({ "_id": { $in: folder.children } },
+                            function (err, docs) {
+                                if (err) { res.send(err); }
+                                if (docs) {
+                                    res.json(
+                                        {
+                                            "new_path": new_path,
+                                            "files": docs
+                                        }
+                                    );
+                                } else {
+                                    res.json(
+                                        {
+                                            "success": false,
+                                            "message": "docs did not resolve true."
+                                        });
+                                }
+                            });
+                    } else {
+                        res.json(
+                            {
+                                "success": false,
+                                "message": "could not find a matching folder."
+                            });
+                    }
+                });
+            } else {
+                res.json(
+                    {
+                        "success": false,
+                        "message": "Invalid username and password combination."
+                    });
+            }
+        });
 });
 
 /*start the server*/
