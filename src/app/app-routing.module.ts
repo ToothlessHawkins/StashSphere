@@ -1,24 +1,24 @@
 import { NgModule } from '@angular/core';
-// import { FrontPageRoutingModule } from './front-page/front-page-routing.module';
 import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component'
 
 import { FrontPageModule } from './front-page/front-page.module'
 import { FrontPageComponent } from './front-page/front-page.component'
 
-import { LoginFormComponent } from './front-page/login-form/login-form.component'
 import { AppPage } from '../../e2e/app.po';
 
 import { DashboardModule } from './dashboard/dashboard.module'
 import { DashboardComponent } from './dashboard/dashboard.component'
 
+import { AuthGuardService } from './auth-guard.service';
+
 const routes: Routes = [
 
   {
-
     path: 'dash',
     component: DashboardComponent,
-    loadChildren: () => DashboardModule
+    loadChildren: () => DashboardModule,
+    canActivate: [AuthGuardService]
   },
   {
     path: 'front',
@@ -34,6 +34,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [AuthGuardService]
 })
 export class AppRoutingModule { }

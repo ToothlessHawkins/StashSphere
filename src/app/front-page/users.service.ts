@@ -21,6 +21,14 @@ export class UsersService {
     return this.http.post<Response>((this.usersUrl + this.create), newUser);
   }
 
+  isValid(): boolean {
+    if (sessionStorage.getItem('user') && sessionStorage.getItem('user') != 'false') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   constructor(private http: HttpClient) { }
 
 }
