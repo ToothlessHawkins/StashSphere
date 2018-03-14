@@ -10,25 +10,35 @@ import { Router } from '@angular/router';
 export class LoginFormComponent implements OnInit {
 
   failed: boolean = false;
+  output
   credentials = {
     _username: "",
     password: ""
   }
 
+
+  //   sessionStorage.setItem('id', data.id);
+  //   // retrieving from the session
+  //   var data = sessionStorage.getItem('id');
+  //   console.log(data) // to see the id in the console
+
   attemptLogin(creds): void {
-    //console.log("The credentials you are attempting to login with:");
-    //console.log(creds);
     this.userService.attemptLogin(creds)
       .subscribe(result => {
-        //console.log("The result of the attemptLogin function:");
-        //console.log(result);
         if (result) {
           /* REROUTE AFTER SUCCESSFUL LOGIN */
-          //console.log("Successful login!");
+          //sessionStorage.setItem('user', result._username);
+
+          const r = JSON.stringify(result);
+          //console.log(r)
+          sessionStorage.setItem('user', r);
+          let data = sessionStorage.getItem('user');
+          data = JSON.parse(data)
+          console.log(data._username);
           this.router.navigateByUrl('/dash');
         } else {
           this.failed = true;
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl('/front/login');
         }
       });
   }
