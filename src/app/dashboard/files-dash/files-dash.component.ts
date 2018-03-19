@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FilesService } from '../files.service';
-var fs = require('fs');
+let fs = require('fs');
 
 @Component({
   selector: 'app-files-dash',
@@ -12,10 +12,20 @@ export class FilesDashComponent implements OnInit {
   raw_data = sessionStorage.getItem("user");
   clean_data = JSON.parse(this.raw_data);
   auth_token = this.clean_data.token;
-
-  // set currentPath to root
+  local_path: string = "assets/coconut.jpg";
   currentPath;
   viewable;
+  // hardocded some test values
+  // viewable = [
+  //   {
+  //     file_name: 'banana',
+  //     isFolder: true
+  //   },
+  //   {
+  //     file_name: 'assets/coconut.jpg',
+  //     isFolder: false
+  //   },
+  // ];
 
   // get folder from api, last 2 params are optional, which will get root folder for user@token
   getFolder(token, goingto = "", here = ""): void {
@@ -23,18 +33,10 @@ export class FilesDashComponent implements OnInit {
     // folder_name: <the folder the user is clicking on>,
     // cur_path: <the path from root to the directory the user is currently in>
 
-    // let payload = {
-    //   token: token,
-    //   folder_name: goingto,
-    //   cur_path: here,
-    // }
-
     let payload = {
       token: token,
-      folder_name: 'undefined',
-      cur_path: '',
-      _username: 'new_pleb',
-      password: 'FruitBasket123'
+      folder_name: goingto,
+      cur_path: here,
     }
 
     console.log(payload)
@@ -53,7 +55,7 @@ export class FilesDashComponent implements OnInit {
       });
   }
 
-  getFile(token, file, here, name): void {
+  getFile(token, file, here): void {
     // token: <the provided login - token >,
     // file_name: <the name of the file the user clicked on >,
     // cur_path: <the path from root to the directory the user is in currently >
@@ -63,6 +65,11 @@ export class FilesDashComponent implements OnInit {
       cur_path: here
     }
     console.log(payload)
+
+    // for modal
+    this.local_path = file;
+
+    let name = "Test1";
 
     this.fileService.getFile(payload)
       .subscribe(result => {
@@ -79,6 +86,19 @@ export class FilesDashComponent implements OnInit {
           console.log(result.message);
         }
       });
+  }
+
+  starItem(): void {
+    let payload = {
+      //something
+    }
+
+    console.log(payload)
+
+    this.fileService.starItem(payload)
+      .subscribe(result => {
+        console.log("Item starred!")
+      })
   }
 
   constructor(private fileService: FilesService) { }

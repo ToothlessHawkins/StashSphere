@@ -1,28 +1,52 @@
 <div class="container col-sm-10 well-sm">
+  <h5>Path: {{ currentPath }}</h5>
   <table class="table">
     <thead>
       <tr>
         <th class="col-sm-9">
-          <h5>{{ currentPath }}</h5>
+          File Name
         </th>
-        <th>
+        <th style="text-align:center">
+          Starred
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td class="show-fav-tbl">File Name</td>
-      </tr>
       <tr *ngFor="let child of viewable">
         <td class="show-fav-tbl">
           <a (click)="getFolder(auth_token, child.file_name, currentPath)" *ngIf="child.isFolder;else isFile">
-            <img src="assets/folder.png">{{ child.file_name }}</a>
+            <img src="assets/folder.png" height="25" width="25">Folder: {{ child.file_name }}</a>
           <ng-template #isFile>
-            <a (click)="getFile">
-              <img src="assets/file.png">{{ child.file_name }}</a>
+            <a href="#exampleModal" data-toggle="modal" (click)="getFile(auth_token, child.file_name, currentPath)">
+              <img src="assets/file.png" height="25" width="25">File: {{ child.file_name }}
+            </a>
           </ng-template>
+        </td>
+        <td align="center">
+          <input type='checkbox' id='checkbox' (click)="starItem()">
         </td>
       </tr>
     </tbody>
   </table>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h6>{{ local_path }}</h6>
+        <img [src]="local_path">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Download File</button>
+      </div>
+    </div>
+  </div>
 </div>
