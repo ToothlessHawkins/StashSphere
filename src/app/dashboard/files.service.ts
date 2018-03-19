@@ -22,6 +22,7 @@ export class FilesService {
   private file = 'file'
   private folder = 'folder'
   private new_folder = 'new_folder'
+  private star = 'star'
 
   //Observable<specific type of response> ?
   //Observable<JSON> ?
@@ -30,12 +31,16 @@ export class FilesService {
     return this.http.post<Reply>((this.url + this.folder), payload);
   }
 
+  getFile(payload): Observable<Reply> {
+    return this.http.post<Reply>((this.url + this.file), payload);
+  }
+
   makeFolder(payload): Observable<Reply> {
     return this.http.post<Reply>((this.url + this.new_folder), payload);
   }
 
-  getFile(payload): Observable<Reply> {
-    return this.http.post<Reply>((this.url + this.file), payload);
+  starItem(payload): Observable<Reply> {
+    return this.http.put<Reply>((this.url + this.star), payload);
   }
 
   constructor(private http: HttpClient) { }
