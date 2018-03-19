@@ -25,7 +25,7 @@ var upload = multer({ storage: storage });
 /*
 A helper function for removing folders, needed a recursive way to remove any and all subdirectories/files when removing a user
 */
-var deleteFolderRecursive = function (path, rel_path) {
+var deleteFolderRecursive = function (path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function (file, index) {
             var curPath = path + "/" + file;
@@ -51,6 +51,23 @@ var deleteFolderRecursive = function (path, rel_path) {
                 }
             });
     }
+};
+
+/**
+ * a helper function to remove a folder from the database (and all of its children)
+ */
+var dbRemoveFolderRecursive = function (id) {
+    Node.findByIdAndRemove(id, function (err, doc) {
+        if (err) {
+            console.log(err);
+        } else if (doc) {
+            doc.children.forEach(function (child, index) {
+                dbRemoveFolderRecursive(child._id); //recurse
+            });
+        } else {
+            console.log("no Doc found with id: " + id);
+        }
+    });
 };
 
 mongoose.connect("mongodb://localhost/stashsphere");
@@ -195,7 +212,7 @@ app.post("/user/create", function (req, res) {
                     console.log("successfully created: " + shared_dir + "\n");
                     new_user.path_shared = shared_dir;
                     shared_folder = new Node();
-                    shared_folder.file_name = new_user._username;
+                    shared_folder.file_name = "";
                     shared_folder.uploader = new_user._username;
                     shared_folder.date_up = Date.now();
                     shared_folder.children = [];
@@ -239,8 +256,14 @@ app.delete("/user/delete", function (req, res) {
             }
             deleteFolderRecursive(to_del.path_root);
             console.log("Removed all user files in root directory.");
+            Node.findOne(
+                { file_name: "", owner: to_del._username },
+                function (err, file) {
+                    dbRemoveFolderRecursive(file._id);
+                });
             deleteFolderRecursive(to_del.path_shared);
             console.log("removed all user files in shared directory.");
+            Node.findOne();
         });
     User.findOneAndRemove(
         { token: jwt.decode(req.body.token, secret) },
@@ -513,8 +536,9 @@ app.delete("/node/rm", function (req, res) {
                         "message": err
                     });
             } else if (user) {
-                var full_path = user.path_root + req.body.cur_path + req.body.name;
-                deleteFolderRecursive(full_path);
+                var rel_path = req.body.cur_path + req.body.name;
+                var full_path = user.path_root + rel_path;
+                deleteFolderRecursive(full_path, rel_path);
                 res.json(
                     {
                         "success": true,
@@ -699,6 +723,6 @@ app.post("/node/folder", function (req, res) {
 });
 
 /*start the server*/
-app.listen(3000, "localhost", function () {
-    console.log("Listening on port 3000");
+app.listen(80, function () {
+    console.log("Listening on port 80");
 });
