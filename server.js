@@ -33,9 +33,23 @@ var deleteFolderRecursive = function (path) {
                 deleteFolderRecursive(curPath);
             } else { // delete file
                 fs.unlinkSync(curPath);
+                Node.findOneAndRemove(
+                    { file_name: curPath },
+                    function (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
             }
         });
         fs.rmdirSync(path);
+        Node.findOneAndRemove(
+            { file_name: path },
+            function (err) {
+                if (err) {
+                    console.log(err);
+                }
+            });
     }
 };
 
@@ -57,6 +71,7 @@ var Node = mongoose.model("Node", mongoose.Schema({
     file_name: String,
     uploader: String,
     date_up: Date,
+    date_mod: Date,
     children: [{ type: String }],
     starred: Boolean,
     deleted: Boolean,
@@ -118,6 +133,8 @@ Formatting:
     fName: <first name>,
     lName: <last name>,
 }
+returns:
+a success or failure message, the success message includes the newly created user object
 */
 app.post("/user/create", function (req, res) {
     User.findOne(
@@ -140,7 +157,7 @@ app.post("/user/create", function (req, res) {
                 };
                 new_user.date_created = Date.now();
                 //create user's root folder
-                var dir = __dirname + "/roots/" + new_user._username + "_home";
+                var dir = __dirname + "/roots/" + new_user._username + "_home/";
                 console.log("creating home directory: " + dir);
                 try {
                     fs.mkdirSync(dir);
@@ -154,7 +171,7 @@ app.post("/user/create", function (req, res) {
                     console.log("successfully created: " + dir + "\n");
                     new_user.path_root = dir;
                     root_folder = new Node();
-                    root_folder.file_name = new_user.path_root;
+                    root_folder.file_name = new_user._username + "_home";
                     root_folder.uploader = new_user._username;
                     root_folder.date_up = Date.now();
                     root_folder.children = [];
@@ -178,7 +195,7 @@ app.post("/user/create", function (req, res) {
                     console.log("successfully created: " + shared_dir + "\n");
                     new_user.path_shared = shared_dir;
                     shared_folder = new Node();
-                    shared_folder.file_name = new_user.path_shared;
+                    shared_folder.file_name = new_user._username;
                     shared_folder.uploader = new_user._username;
                     shared_folder.date_up = Date.now();
                     shared_folder.children = [];
@@ -193,7 +210,11 @@ app.post("/user/create", function (req, res) {
                     if (err) {
                         res.send(err);
                     }
-                    res.json(created_user);
+                    res.json(
+                        {
+                            "success": true,
+                            "User": created_user
+                        });
                 });
             }
         });
@@ -205,6 +226,8 @@ formatting:
 {
     "token":<the login-token>
 }
+returns:
+a success or failure message
 */
 app.delete("/user/delete", function (req, res) {
     User.findOne(
@@ -215,15 +238,18 @@ app.delete("/user/delete", function (req, res) {
                 res.send(err);
             }
             deleteFolderRecursive(to_del.path_root);
+            console.log("Removed all user files in root directory.");
             deleteFolderRecursive(to_del.path_shared);
+            console.log("removed all user files in shared directory.");
         });
     User.findOneAndRemove(
         { token: jwt.decode(req.body.token, secret) },
-        function (err) {
+        function (err, u_removed) {
             if (err) {
                 res.send(err);
             }
-            res.json({ "_username": req.body._username, "removed": true });
+            console.log("Removed " + u_removed._username + " from the database.");
+            res.json({ "_username": u_removed._username, "removed": true });
         });
 });
 
@@ -237,6 +263,8 @@ formatting:
     fName:<first name>,
     lName:<last name>
 }
+returns:
+the newly updated user object
 */
 app.put("/user/update", function (req, res) {
     mod_user = {
@@ -298,6 +326,36 @@ app.put("/user/add_friend", function (req, res) {
         });
 });
 
+/*
+provide the token to log out a user, clears the old token from the DB.
+format:
+{
+    token:<provided login token>
+}
+returns:
+success or failure message
+*/
+app.put("/user/logout", function (req, res) {
+    User.findOneAndUpdate(
+        { token: jwt.decode(req.body.token) },
+        { token: null },
+        function (err, user) {
+            if (err) {
+                res.json(
+                    {
+                        "success": false,
+                        "message": err
+                    });
+            } else {
+                res.json(
+                    {
+                        "success": true,
+                        "message": user._username + " successfully logged out."
+                    });
+            }
+        });
+});
+
 /*node actions*/
 
 /*
@@ -309,37 +367,50 @@ formatting:
     owner:<the _username of the uploader>,
     file:<the file to store>
 }
+returns:
+a success or failure message, success also shows the path of the new file
 */
 app.post("/node/file_up", upload.single("file"), function (req, res) {
-    console.log("headers: " + req.headers);
-    console.log("content-type: " + req.headers["content-type"]);
-    console.log("file: " + req.file);
-    //console.log("The request body: " + req.body);
-    console.log("path: " + req.body.u_path);
-    console.log("owner: " + req.body.owner);
-    console.log("original name: " + req.file.originalname);
     User.findOne({ token: jwt.decode(req.body.token, secret) },
         function (err, user) {
             if (err) { res.send(err); }
             if (user) {
                 var from = "./temp/" + req.file.originalname;
-                var to = user.path_root + "/" + req.body.u_path + req.file.originalname;
+                var parent = req.body.u_path;
+                var rel_path = parent + req.file.originalname;
+                var to = user.path_root + rel_path;
                 console.log("to: " + to);
                 fs.copyFileSync(from, to);
                 if (fs.existsSync(to)) {
                     //the file exists in the new directory, clean up temp
                     fs.unlinkSync(from);
                     //add a reference to the new file in the database
-                    Node.create({
-                        file_name: to,
-                        uploader: req.body.owner,
-                        date_up: Date.now(),
-                        children: [],
-                        starred: false,
-                        deleted: false,
-                        isFolder: false
+                    var a_file = new Node();
+                    //Node.create({
+                    a_file.file_name = rel_path;
+                    a_file.uploader = req.body.owner;
+                    a_file.date_up = Date.now();
+                    a_file.children = [];
+                    a_file.starred = false;
+                    a_file.deleted = false;
+                    a_file.isFolder = false;
+                    //});
+                    a_file.save(function (err, doc) {
+                        Node.findOneAndUpdate(
+                            { file_name: parent },
+                            { $addToSet: { children: doc._id } },
+                            function (err) {
+                                if (err) {
+                                    res.send(err);
+                                } else {
+                                    res.json(
+                                        {
+                                            "created": true,
+                                            "location": rel_path
+                                        });
+                                }
+                            });
                     });
-                    res.json({ "created": true, "location": to });
                 } else {
                     res.json({
                         "created": false,
@@ -360,18 +431,20 @@ formatting:
 }
 */
 app.post("/node/new_folder", function (req, res) {
-    console.log("received request to create a folder:\n" + req.body.name + "\nin the existing folder:\n" + req.body.cur_path + "\nfor user: " + req.body._username);
+    console.log("received request to create a folder:\n" + req.body.name + "\nin the existing folder:\n" + req.body.cur_path);
     User.findOne({ token: jwt.decode(req.body.token, secret) },
         function (err, user) {
             if (err) {
                 res.send(err);
             } else {
-                var dest = user.path_root + "/" + req.body.cur_path + req.body.name;
+                var parent = req.body.cur_path;
+                var rel_dest = parent + req.body.name + "/";
+                var dest = user.path_root + rel_dest;
                 fs.mkdirSync(dest);
                 if (fs.existsSync(dest)) {
                     var f_doc = new Node();
-                    f_doc.file_name = dest;
-                    f_doc.uploader = req.body._username;
+                    f_doc.file_name = rel_dest;
+                    f_doc.uploader = user._username;
                     f_doc.date_up = Date.now();
                     f_doc.children = [];
                     f_doc.starred = false;
@@ -379,14 +452,18 @@ app.post("/node/new_folder", function (req, res) {
                     f_doc.isFolder = true;
                     f_doc.save(function (err, doc) {
                         Node.findOneAndUpdate(
-                            { file_name: user.path_root + "/" + req.body.cur_path.slice(0, -1) },
+                            { file_name: parent },
                             { $addToSet: { children: doc._id } },
-                            function (err) { if (err) { res.send(err); } }
-                        );
-                        res.json(
-                            {
-                                "created": true,
-                                "location": dest
+                            function (err) {
+                                if (err) {
+                                    res.send(err);
+                                } else {
+                                    res.json(
+                                        {
+                                            "created": true,
+                                            "location": rel_dest
+                                        });
+                                }
                             });
                     });
                 } else {
@@ -400,10 +477,43 @@ app.post("/node/new_folder", function (req, res) {
 });
 
 /*
-removing a file
+removing a file, provide the user's token, the current path and the file or folder name.
+formatting:
+{
+    token:<the provided login-token>,
+    cur_path:<the relative path from the root folder>,
+    name:<the name of the file or folder to remove>
+}
+returns:
+a success or failure message
 */
 app.delete("/node/rm", function (req, res) {
-    //
+    User.findOne(
+        { token: jwt.decode(req.body.token, secret) },
+        function (err, user) {
+            if (err) {
+                console.log(err);
+                res.json(
+                    {
+                        "success": false,
+                        "message": err
+                    });
+            } else if (user) {
+                var full_path = user.path_root + req.body.cur_path + req.body.name;
+                deleteFolderRecursive(full_path);
+                res.json(
+                    {
+                        "success": true,
+                        "message": "successfully deleted " + req.body.cur_path + req.body.name
+                    });
+            } else {
+                res.json(
+                    {
+                        "success": false,
+                        "message": "Token mismatch"
+                    });
+            }
+        });
 });
 
 /*
@@ -415,16 +525,49 @@ app.delete("/node/rmdir", function (req, res) {
 
 /*
 updating a file. Provide the user details, and the current path, and the new path. Note that simply changing the name at the end of the path will change the file name
+formatting:
+{
+    token:<the provided login-token>,
+    cur_path:<current path, ending with the file name>,
+    new_path:<the new path, ending with new file name>
+}
+returns:
+a success or failure message. Success will include the updated relative path.
 */
 app.put("/node/update", function (req, res) {
-    //
+    User.findOne(
+        { token: jwt.decode(req.body.token, secret) },
+        function (err, user) {
+            if (err) {
+                res.json(
+                    {
+                        "success": false,
+                        "message": "Failed to findOne"
+                    });
+            } else {
+                var full_cur_path = user.path_root + "/" + req.body.cur_path;
+                console.log("copying from: " + full_cur_path);
+                var full_new_path = user.path_root + "/" + req.body.new_path;
+                console.log("copying to: " + full_new_path);
+                if (fs.existsSync(full_cur_path)) {
+                    //the folder exists where we expect to find it
+                } else {
+                    res.json(
+                        {
+                            "success": false,
+                            "message": "Unable to locate the specified file"
+                        });
+                }
+            }
+        });
 });
 
 /*
-starring a file.
+starring a file. Provide the token, the relative path (ending in filename), the databse record will be set "starred" to "!starred", so the same action removes the star.
+
 */
 app.put("/node/star", function (req, res) {
-    //
+
 });
 
 /*
@@ -444,7 +587,7 @@ app.post("/node/file", function (req, res) {
                 res.send(err);
             } else if (user) {
                 //matched a user
-                var filePath = user.path_root + "/" + req.body.cur_path + req.body.file_name;
+                var filePath = user.path_root + req.body.cur_path + req.body.file_name;
                 console.log("reading file at: " + filePath);
                 fs.readFile(filePath, function (err, data) {
                     if (err) {
@@ -492,41 +635,45 @@ app.post("/node/folder", function (req, res) {
                 res.send(err);
             } else if (user) {
                 //found a matching user
-                var name = user.path_root + "/" + req.body.cur_path + req.body.folder_name;
-                console.log(name);
-                Node.findOne({ file_name: name }, function (err, folder) {
-                    if (err) {
-                        res.send(err);
-                    } else if (folder) {
-                        //found the folder
-                        new_path = folder.file_name;
-                        Node.find({ "_id": { $in: folder.children } },
-                            function (err, docs) {
-                                if (err) { res.send(err); }
-                                if (docs) {
-                                    res.json(
-                                        {
-                                            "success": true,
-                                            "new_path": new_path,
-                                            "files": docs
-                                        }
-                                    );
-                                } else {
-                                    res.json(
-                                        {
-                                            "success": false,
-                                            "message": "docs did not resolve true."
-                                        });
-                                }
-                            });
-                    } else {
-                        res.json(
-                            {
-                                "success": false,
-                                "message": "could not find a matching folder."
-                            });
-                    }
-                });
+                var name = req.body.folder_name;
+                var rel_path = req.body.cur_path + name;
+                console.log(rel_path);
+                Node.findOne(
+                    { file_name: rel_path },
+                    function (err, folder) {
+                        if (err) {
+                            res.send(err);
+                        } else if (folder) {
+                            //found the folder
+                            new_path = req.body.cur_path + folder.file_name;
+                            Node.find(
+                                { "_id": { $in: folder.children } },
+                                function (err, docs) {
+                                    if (err) { res.send(err); }
+                                    if (docs) {
+                                        res.json(
+                                            {
+                                                "success": true,
+                                                "new_path": new_path,
+                                                "files": docs
+                                            }
+                                        );
+                                    } else {
+                                        res.json(
+                                            {
+                                                "success": false,
+                                                "message": "docs did not resolve true."
+                                            });
+                                    }
+                                });
+                        } else {
+                            res.json(
+                                {
+                                    "success": false,
+                                    "message": "could not find a matching folder."
+                                });
+                        }
+                    });
             } else {
                 res.json(
                     {
