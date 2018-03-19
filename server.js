@@ -25,7 +25,7 @@ var upload = multer({ storage: storage });
 /*
 A helper function for removing folders, needed a recursive way to remove any and all subdirectories/files when removing a user
 */
-var deleteFolderRecursive = function (path) {
+var deleteFolderRecursive = function (path, rel_path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function (file, index) {
             var curPath = path + "/" + file;
@@ -171,7 +171,7 @@ app.post("/user/create", function (req, res) {
                     console.log("successfully created: " + dir + "\n");
                     new_user.path_root = dir;
                     root_folder = new Node();
-                    root_folder.file_name = new_user._username + "_home";
+                    root_folder.file_name = "";
                     root_folder.uploader = new_user._username;
                     root_folder.date_up = Date.now();
                     root_folder.children = [];
@@ -435,8 +435,12 @@ app.post("/node/new_folder", function (req, res) {
     User.findOne({ token: jwt.decode(req.body.token, secret) },
         function (err, user) {
             if (err) {
-                res.send(err);
-            } else {
+                res.json(
+                    {
+                        "success": false,
+                        "message": err
+                    });
+            } else if (user) {
                 var parent = req.body.cur_path;
                 var rel_dest = parent + req.body.name + "/";
                 var dest = user.path_root + rel_dest;
@@ -456,11 +460,15 @@ app.post("/node/new_folder", function (req, res) {
                             { $addToSet: { children: doc._id } },
                             function (err) {
                                 if (err) {
-                                    res.send(err);
+                                    res.json(
+                                        {
+                                            "success": false,
+                                            "message": err
+                                        });
                                 } else {
                                     res.json(
                                         {
-                                            "created": true,
+                                            "success": true,
                                             "location": rel_dest
                                         });
                                 }
@@ -468,10 +476,16 @@ app.post("/node/new_folder", function (req, res) {
                     });
                 } else {
                     res.json({
-                        "created": false,
+                        "success": false,
                         "message": "after trying to create the directory, it did not exist in the desired path"
                     }); //end bad response
                 } //end if-else-if: fs.existsSync()
+            } else {
+                res.send(
+                    {
+                        "success": false,
+                        "message": "Token mismatch."
+                    });
             } //end if-else-if err
         }); //end findone
 });
