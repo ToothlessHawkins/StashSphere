@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { FilesService } from './files.service';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 
 import { DashboardComponent } from './dashboard.component';
@@ -30,7 +31,7 @@ import { SharingDashComponent } from './sharing-dash/sharing-dash.component';
     DeleteDashComponent,
     SharingDashComponent,
     DashboardComponent
-
-  ]
+  ],
+  providers: [FilesService]
 })
 export class DashboardModule { }

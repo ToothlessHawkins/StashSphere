@@ -2,10 +2,14 @@
   <table class="table">
     <thead>
       <tr>
-        <th class="col-sm-9"><h5>Favorites</h5></th>
+        <th class="col-sm-9">
+          <h5>Favorites</h5>
+        </th>
         <!--<th>Modified</th>
         <th>Memebers</th>-->
-        <th><a (click)="toggleHome(0)" class="btn btn-outline-info btn-block" role="button">{{ btn[0] }}</a></th>
+        <th>
+          <a (click)="toggleHome(0)" class="btn btn-outline-info btn-block" role="button">{{ btn[0] }}</a>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -20,8 +24,12 @@
   <table class="table">
     <thead>
       <tr>
-        <th class="col-sm-9"><h5>Recent</h5></th>
-        <th><a (click)="toggleHome(1)" class="btn btn-outline-info btn-block" role="button">{{ btn[1] }}</a></th>
+        <th class="col-sm-9">
+          <h5>Recent</h5>
+        </th>
+        <th>
+          <a (click)="toggleHome(1)" class="btn btn-outline-info btn-block" role="button">{{ btn[1] }}</a>
+        </th>
         <!--<th>Modified</th>
         <th>Memebers</th>-->
       </tr>
@@ -36,5 +44,3 @@
     </tbody>
   </table>
 </div>
-
-

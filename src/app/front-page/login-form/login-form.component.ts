@@ -10,7 +10,6 @@ import { Router } from '@angular/router';
 export class LoginFormComponent implements OnInit {
 
   failed: boolean = false;
-  output
   credentials = {
     _username: "",
     password: ""
@@ -26,15 +25,11 @@ export class LoginFormComponent implements OnInit {
     this.userService.attemptLogin(creds)
       .subscribe(result => {
         if (result) {
-          /* REROUTE AFTER SUCCESSFUL LOGIN */
-          //sessionStorage.setItem('user', result._username);
-
           const r = JSON.stringify(result);
-          //console.log(r)
           sessionStorage.setItem('user', r);
-          let data = sessionStorage.getItem('user');
-          data = JSON.parse(data);
-
+          // let data = sessionStorage.getItem('user');
+          // data = JSON.parse(data);
+          // console.log(data.token)
           this.router.navigateByUrl('/dash');
         } else {
           this.failed = true;

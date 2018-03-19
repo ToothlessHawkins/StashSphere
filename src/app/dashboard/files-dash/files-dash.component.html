@@ -1,3 +1,28 @@
-<p>
-  files-dash works!
-</p>
+<div class="container col-sm-10 well-sm">
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="col-sm-9">
+          <h5>{{ currentPath }}</h5>
+        </th>
+        <th>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="show-fav-tbl">File Name</td>
+      </tr>
+      <tr *ngFor="let child of viewable">
+        <td class="show-fav-tbl">
+          <a (click)="getFolder(auth_token, child.file_name, currentPath)" *ngIf="child.isFolder;else isFile">
+            <img src="assets/folder.png">{{ child.file_name }}</a>
+          <ng-template #isFile>
+            <a (click)="getFile">
+              <img src="assets/file.png">{{ child.file_name }}</a>
+          </ng-template>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

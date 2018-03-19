@@ -7,7 +7,7 @@
 </div>
 <div>
   <label>Password:
-    <input type="password" [(ngModel)]="credentials.password" placeholder="Password">
+    <input type="password" [(ngModel)]="credentials.password" placeholder="Password" (keyup.enter)="attemptLogin(credentials)">
   </label>
 </div>
 <div>

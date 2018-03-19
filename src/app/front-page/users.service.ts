@@ -6,8 +6,6 @@ import { HttpClient } from '@angular/common/http';
 @Injectable()
 export class UsersService {
 
-
-
   /* ENTER URL HERE */
   private usersUrl = 'http://35.173.205.255/user/'
   private login = 'login'
