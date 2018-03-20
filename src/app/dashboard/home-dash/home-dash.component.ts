@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 declare const jquery: any;
 declare const $: any;
+const user = [];
 
 @Component({
   selector: 'app-home-dash',

@@ -11,17 +11,17 @@
       <tr>
         <td class="col-sm-9">{{ data.details._username }}</td>
  
-        <th><a class="btn btn-outline-info btn-block" role="button">edit</a></th>
+        <th><a class="btn btn-outline-info btn-block" role="button" (click)="editUser('un')">edit</a></th>
 
       </tr>
       <tr>
         <td class="col-sm-9">Password</td>
-        <th><a class="btn btn-outline-info btn-block" role="button">edit</a></th>
+        <th><a class="btn btn-outline-info btn-block" role="button" (click)="editUser('pw')">edit</a></th>
       </tr>
       <tr>
         <td class="col-sm-9">{{ data.details.fName }} {{ data.details.lName }}</td>
 
-        <th><a class="btn btn-outline-info btn-block" role="button">edit</a></th>
+        <th><a class="btn btn-outline-info btn-block" role="button" (click)="editUser('fl')">edit</a></th>
       </tr>
     </tbody>
   </table>
