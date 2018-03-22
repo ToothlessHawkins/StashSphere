@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                bat 'npm --version'
+                bat 'nodemon server.js'
             }
         }
     }
