@@ -29,12 +29,12 @@ export class SignUpFormComponent implements OnInit {
     this.userService.attemptCreateUser(user)
       .subscribe(result => {
         //console.log(result);
-        if (Object.keys(result).length > 2) {
+        if (result.success) {
           /* REROUTE TO LOGIN AFTER SUCCESSFUL CREATION */
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl('/front/login');
         } else {
           this.failed = true;
-          this.router.navigateByUrl('/signup');
+          this.router.navigateByUrl('/front/signup');
         }
       });
   }

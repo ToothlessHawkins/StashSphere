@@ -3,6 +3,17 @@ import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { HttpClient } from '@angular/common/http';
 
+class Reply {
+  // //properties returned on success
+  // files: string[];
+  // new_path: string;
+  //properties returned on failure
+  success: string;
+  message: string;
+  // //files
+  // data: string;
+}
+
 @Injectable()
 export class UsersService {
 
@@ -13,20 +24,20 @@ export class UsersService {
   private del = 'delete'
   private update = 'update'
 
-  attemptLogin(loginCreds): Observable<Response> {
-    return this.http.post<Response>((this.usersUrl + this.login), loginCreds);
+  attemptLogin(loginCreds): Observable<Reply> {
+    return this.http.post<Reply>((this.usersUrl + this.login), loginCreds);
   }
 
-  attemptCreateUser(newUser): Observable<Response> {
-    return this.http.post<Response>((this.usersUrl + this.create), newUser);
+  attemptCreateUser(newUser): Observable<Reply> {
+    return this.http.post<Reply>((this.usersUrl + this.create), newUser);
   }
 
   //attemptDeleteUser(delUser): Observable<Response> {
   //  return this.http.delete<Response>((this.usersUrl + this.del), delUser);
   //}
 
-  attemptEditUser(putUser): Observable<Response> {
-    return this.http.put<Response>((this.usersUrl + this.update), putUser);
+  attemptEditUser(putUser): Observable<Reply> {
+    return this.http.put<Reply>((this.usersUrl + this.update), putUser);
   }
   isValid(): boolean {
     if (sessionStorage.getItem('user') && sessionStorage.getItem('user') != 'false') {
