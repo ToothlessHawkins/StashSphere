@@ -23,6 +23,7 @@ export class FilesService {
   private folder = 'folder'
   private new_folder = 'new_folder'
   private star = 'star'
+  private file_up = 'file_up'
 
   //Observable<specific type of response> ?
   //Observable<JSON> ?
@@ -41,6 +42,10 @@ export class FilesService {
 
   starItem(payload): Observable<Reply> {
     return this.http.put<Reply>((this.url + this.star), payload);
+  }
+
+  uploadFile(payload): Observable<Reply> {
+    return this.http.post<Reply>((this.url + this.file_up), payload);
   }
 
   constructor(private http: HttpClient) { }

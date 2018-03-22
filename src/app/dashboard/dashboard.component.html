@@ -56,8 +56,15 @@
       </div>
 
       <div class="col-sm-4 div-content">
-        <input class="form-control " id="inputdefault" type="text" name="search" placeholder="Search..">
-        <button type="button" class="btn btn-info col-sm-12">Upload</button>
+        <input class="form-control col-sm-12" id="inputdefault" type="text" name="search" placeholder="Search..">
+        <!--<button type="button" class="btn btn-info col-sm-12" (click)="uploadFile()"></button>-->
+        <!--<form id="form" action="http://localhost:3000/upload" method="POST" enctype="multipart/form-data">-->
+        <!--<input type="file" value="file" name="file" class="btn btn-info col-sm-12" >
+      <input type="submit" value="Upload" class="btn btn-info col-sm-12" (change)="uploadFile($event)">-->
+        <!--</form>-->
+
+        <input type="file" (change)="uploadFile($event)" placeholder="Upload file" accept="all" class="btn btn-info col-sm-12">
+
       </div>
 
     </div>
